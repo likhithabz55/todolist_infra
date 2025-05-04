@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskview-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: taskview-service
+  template:
+    metadata:
+      labels:
+        app: taskview-service
+    spec:
+      containers:
+        - name: taskview-service
+          image: taskview-service_latest
+          ports:
+            - containerPort: 8082
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: host
