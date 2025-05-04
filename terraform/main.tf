@@ -92,7 +92,7 @@ resource "aws_eks_cluster" "eks_terraform" {
   name     = var.project_name
   version = "1.31"
   //create_iam_role = false
-  role_arn = "arn:aws:iam::343830488876:role/LabRole"
+  role_arn = "arn:aws:iam::822298509516:role/LabRole"
   vpc_config {
     subnet_ids = module.vpc.private_subnets
   }
@@ -101,7 +101,7 @@ resource "aws_eks_cluster" "eks_terraform" {
 resource "aws_eks_node_group" "my_node_group" {
   cluster_name    = aws_eks_cluster.eks_terraform.name
   node_group_name = "my-node-group"
-  node_role_arn   = "arn:aws:iam::343830488876:role/LabRole"
+  node_role_arn   = "arn:aws:iam::822298509516:role/LabRole"
   subnet_ids = module.vpc.private_subnets
   scaling_config {
     desired_size = 2
@@ -114,11 +114,11 @@ resource "aws_eks_node_group" "my_node_group" {
 }
 
 data "aws_eks_cluster" "cluster" {
-  name = aws_eks_cluster.eks_terraform.cluster_id
+  name = aws_eks_cluster.eks_terraform.name
 }
 
 data "aws_eks_cluster_auth" "cluster" {
-  name = aws_eks_cluster.eks_terraform.cluster_id
+  name = aws_eks_cluster.eks_terraform.name
 }
 
 

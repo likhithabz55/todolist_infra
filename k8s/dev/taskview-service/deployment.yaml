@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user-service-deployment
+  name: taskview-service-deployment
   labels:
-    app: user-service            #pods will be named app: user-service
+    app: taskview-service            #pods will be named app: user-service
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: user-service
+      app: taskview-service
   template:
     metadata:
       labels:
-        app: user-service
+        app: taskview-service
     spec:
       containers:                     #specifies the container image the pods will run
-        - name: user-service
-          image: todolist-app/user-service:latest
+        - name: taskview-service
+          image: todolist-app/taskview-service:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8081
+            - containerPort: 8082
           env:
             - name: SPRING_DATASOURCE_URL
               value: jdbc:postgresql://postgres-service:5432/todo

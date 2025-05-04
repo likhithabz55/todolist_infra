@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  labels:
+    app: frontend            #pods will be named app: user-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:                     #specifies the container image the pods will run
+        - name: frontend
+          image: todolist-app/frontend
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          env:
+            - name: REACT_APP_USER_SERVICE_URL
+              value: http://user-service:8081
+            - name: REACT_APP_TASK_SERVICE_URL
+              value: http://taskview-service:8082
+
+
