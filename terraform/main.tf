@@ -98,19 +98,28 @@ resource "aws_eks_cluster" "eks_terraform" {
   }
 }
 
-resource "aws_eks_node_group" "my_node_group" {
+resource "aws_eks_node_group" "my_arm64_node_group" {
   cluster_name    = aws_eks_cluster.eks_terraform.name
-  node_group_name = "my-node-group"
+  node_group_name = "arm64-node-group"
   node_role_arn   = "arn:aws:iam::822298509516:role/LabRole"
   subnet_ids = module.vpc.private_subnets
   scaling_config {
     desired_size = 2
-    max_size     = 4
+    max_size     = 2
     min_size     = 2
   }
   disk_size = 20
-  instance_types = ["t3.medium"]
+  instance_types = ["t4g.small"]
+  ami_type       = "AL2_ARM_64" 
   capacity_type = "ON_DEMAND"
+
+  labels = {
+    "arch" = "arm64"
+  }
+
+  tags = {
+    "Name" = "arm64-node-group"
+  }
 }
 
 data "aws_eks_cluster" "cluster" {
@@ -121,33 +130,3 @@ data "aws_eks_cluster_auth" "cluster" {
   name = aws_eks_cluster.eks_terraform.name
 }
 
-
-
-/*
-module "eks" {
-  source          = "terraform-aws-modules/eks/aws"
-  cluster_name    = var.project_name
-  cluster_version = "1.21"
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnets
-
-  enable_irsa = true
-
-  node_groups = {
-    default = {
-      desired_capacity = 2
-      max_capacity     = 3
-      min_capacity     = 2
-      create_iam_role  = false
-      instance_profile = "arn:aws:iam::343830488876:instance-profile/eks-cacb49a9-e47a-61c9-6917-259705511f1c"
-      disk_size        = 20
-      instance_types = ["t3.medium"]
-      capacity_type    = "ON_DEMAND"
-
-      tags = {
-        Name = "eks-node-group-default"
-      }
-    }
-  }
-}
-*/

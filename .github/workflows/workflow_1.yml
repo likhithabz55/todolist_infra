@@ -1,36 +1,112 @@
 # This is a basic workflow to help you get started with Actions
-
-name: CI
-
-# Controls when the workflow will run
+name: Push docker image
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
+    paths:
+      - 'frontend/**'
+    branches:
+      - 'main'
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - name: Checkout Source Repository
+        uses: actions/checkout@v4
+        with:
+          repository: "likhithabz55/todolist-app"
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      #Build docker image for frontend
+      - name: build docker image for frontend
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          docker build -t todolist-app/frontend:latest ./frontend  
+
+      #include code to perform unit tests
+      - name: run tests on frontend
+        run: |
+          docker run --rm todolist-app/frontend:latest npm test    
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ secrets.AWS_REGION }}
+            aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+            node-version: '18'
+
+      - name: Install dependencies
+        run: |
+            npm install
+            npm install -g commitlint @commitlint/config-conventional
+
+      - name: Get last commit message
+        id: last_commit
+        run: |
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+            echo "COMMIT_MSG=$COMMIT_MSG" >> $GITHUB_ENV
+
+      - name: Generate version
+        run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "GitHub Actions"
+          npx standard-version --skip.tag
+
+      - name: Read current version from version.txt
+        id: read_version
+        run: |
+          VERSION=$(cat version.txt)
+          echo "Current version: $CURRENT_VERSION"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+          COMMIT_MSG="${{ env.COMMIT_MSG }}"
+          echo "Commit message: $COMMIT_MSG"
+
+          if [[ "$COMMIT_MSG" == feat:* ]]; then
+              ((MINOR+=1))
+              PATCH=0
+          elif [[ "$COMMIT_MSG" == fix:* ]]; then
+              ((PATCH+=1))
+          elif echo "$COMMIT_MSG" | grep -q "BREAKING CHANGE"; then
+              ((MAJOR+=1))
+              MINOR=0
+              PATCH=0
+          fi
+
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "$NEW_VERSION" > version.txt
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV    
+
+      # Step 3: Commit and push updated version.txt (optional)
+      - name: Commit and push version.txt
+        run: |
+          git add version.txt
+          git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
+          git push origin main
+        env:
+          NEW_VERSION: ${{ env.NEW_VERSION }}
+
+      #login to Amazon ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Tag and Push Docker images with timestamp
+        run: |
+          docker tag todolist-app/frontend:latest 822298509516.dkr.ecr.us-east-1.amazonaws.com/blue_green_ecr/frontend:$NEW_VERSION
+          docker push 822298509516.dkr.ecr.us-east-1.amazonaws.com/blue_green_ecr/frontend:$NEW_VERSION
+
+      - name: Terminating containers locally
+        run: |
+          docker compose down -v
+
