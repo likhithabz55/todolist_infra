@@ -5,7 +5,7 @@ USER_DATA='{"username": "testuser", "email": "test@example.com","password": "123
 
 
 set -x
-for ((i=1; i<=5; i++)); do
+for ((i=1; i<=20; i++)); do
   ADD_USER_RESPONSE=$(curl -v -s -X POST -H "Content-Type: application/json" -d "$USER_DATA" http://qa.to-do.works/users/signup)
   if [ $? -eq 0 ]; then
     echo "Request successful"
@@ -17,7 +17,7 @@ done
 set +x
 
 set -x
-for ((i=1; i<=5; i++)); do
+for ((i=1; i<=20; i++)); do
   VIEW_TASKS_RESPONSE=$(curl -v -s -X GET http://qa.to-do.works/tasks/viewTasks?username=testuser)
   if [ $? -eq 0 ]; then
     echo "Request successful"
