@@ -19,6 +19,14 @@ jobs:
         with:
           repository: "likhithabz55/todolist-app"
 
+      - name: Build maven package for frontend
+        run: |
+          cd user-service
+          mvn clean package
+          mvn install
+          mvn package
+          cd ..
+
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
