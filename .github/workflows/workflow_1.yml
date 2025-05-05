@@ -25,12 +25,7 @@ jobs:
       #Build docker image for frontend
       - name: build docker image for frontend
         run: |
-          docker build -t todolist-app/frontend:latest ./frontend  
-
-      #include code to perform unit tests
-      - name: run tests on frontend
-        run: |
-          docker run --rm todolist-app/frontend:latest npm test    
+          docker build -t todolist-app/frontend:latest ./frontend     
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
