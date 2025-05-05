@@ -1,8 +1,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: prod-ingress
+  name: proxy-prod-ingress
 spec:
+  ingressClassName: nginx
   rules:
     - host: to-do.works
       http:

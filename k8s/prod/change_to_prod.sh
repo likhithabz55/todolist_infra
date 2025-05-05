@@ -14,7 +14,7 @@ fi
 echo "Promoting from namespace '$FROM_NAMESPACE' to namespace '$TO_NAMESPACE'..."
 
 # Remove the current ingress from the source namespace
-kubectl delete ingress prod-ingress --namespace "$FROM_NAMESPACE"
+kubectl delete ingress proxy-prod-ingress --namespace "$FROM_NAMESPACE"
 
 # Apply production service in the target namespace
 kubectl apply -f prod_ingress.yaml --namespace "$TO_NAMESPACE"

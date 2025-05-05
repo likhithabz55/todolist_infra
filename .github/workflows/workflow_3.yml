@@ -1,6 +1,9 @@
-name: Build green version on qa
+name: Blue-green deployment on uat
 on:
-  push:
+  workflow_run:
+    workflows: [ "Build green version on qa" ]
+    types:
+      - completed
   workflow_dispatch:
 
 jobs:
@@ -20,7 +23,26 @@ jobs:
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
-      - name: Deploy new frontend version on qa
+      - name: Delete Green Cluster on qa (cleanup)
+        run : |
+          aws eks update-kubeconfig --region us-east-1 --name eks-blue-green
+          kubectl delete deployments -all -n qa
+          kubectl delete services -all -n qa
+
+      - name: Deploy new green frontend version on uat
         run: |
           cd k8s/uat
           sh deploy_green.sh
+
+      - name: Run integration tests on uat
+        run: |
+          sh ./test_2.sh
+          if [ $? -ne 0 ]; then
+              echo "Tests failed"
+              echo "deleting deployment"
+              kubectl delete deployments --all -n uat-green
+          else
+              echo "All tests passed.deployment successful"
+          fi
+          exit
+          EOF
