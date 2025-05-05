@@ -1,7 +1,7 @@
-name: Build green version on qa
+name: Blue-green deployment on prod
 on:
   workflow_run:
-    workflows: [ "New deployment" ]
+    workflows: [ "Blue-green deployment on uat" ]
     types:
       - completed
   workflow_dispatch:
@@ -23,21 +23,22 @@ jobs:
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
-      - name: Deploy new frontend version on qa
+      - name: Deploy new green frontend version on prod
         run: |
-          cd k8s/qa
-          sh deploy.sh
+          cd k8s/prod
+          sh deploy_green.sh    
 
-      - name: Run tests
+      - name: Run integration tests on prod.if successful, switch prod to green
         run: |
-          cd k8s/qa
-          bash test_2.sh
+          cd k8s/prod
+          bash ./test_2.sh
           if [ $? -ne 0 ]; then
               echo "Tests failed"
               echo "deleting deployment"
-              kubectl delete deployments --all -n qa
+              kubectl delete deployments --all -n prod-green
           else
               echo "All tests passed.deployment successful"
+              sh ./change_to_prod.sh "prod-blue" "prod-green"
           fi
           exit
           EOF

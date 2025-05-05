@@ -6,7 +6,7 @@ USER_DATA='{"username": "testuser", "email": "test@example.com","password": "123
 
 set -x
 for ((i=1; i<=5; i++)); do
-  ADD_USER_RESPONSE=$(curl -v -s -X POST -H "Content-Type: application/json" -d "$USER_DATA" http://uat-green.to-do.works/users/signup)
+  ADD_USER_RESPONSE=$(curl -v -s -X POST -H "Content-Type: application/json" -d "$USER_DATA" http://prod-green.to-do.works/users/signup)
   if [ $? -eq 0 ]; then
     echo "Request successful"
     break
@@ -18,7 +18,7 @@ set +x
 
 set -x
 for ((i=1; i<=5; i++)); do
-  VIEW_TASKS_RESPONSE=$(curl -v -s -X GET http://uat-green.to-do.works/tasks/viewTasks?username=testuser)
+  VIEW_TASKS_RESPONSE=$(curl -v -s -X GET http://prod-green.to-do.works/tasks/viewTasks?username=testuser)
   if [ $? -eq 0 ]; then
     echo "Request successful"
     break
