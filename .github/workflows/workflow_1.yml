@@ -56,7 +56,7 @@ jobs:
       - name: Read current version from version.txt
         id: read_version
         run: |
-          VERSION=$(cat version.txt)
+          CURRENT_VERSION=$(awk '/^frontend/ { print $2 }' version.txt)
           echo "Current version: $CURRENT_VERSION"
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
 
