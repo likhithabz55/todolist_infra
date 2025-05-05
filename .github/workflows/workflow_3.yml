@@ -23,10 +23,16 @@ jobs:
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
+      - name: cleanup
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name eks-blue-green
+          kubectl delete deployments --all -n qa
+          kubectl delete services --all -n qa    
+
       - name: Deploy new green frontend version on uat
         run: |
           cd k8s/uat
-          sh deploy_green.sh
+          sh deploy_green.sh    
 
       - name: Run integration tests on uat
         run: |
