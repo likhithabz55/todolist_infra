@@ -24,8 +24,8 @@ jobs:
           repository: "likhithabz55/todolist-app"
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
+      #- name: Set up Docker
+      #  uses: docker/setup-buildx-action@v2
 
       #Build docker image for frontend
       - name: build docker image for frontend
@@ -96,7 +96,5 @@ jobs:
           docker tag todolist-app/frontend:latest 822298509516.dkr.ecr.us-east-1.amazonaws.com/blue_green_ecr/frontend:$NEW_VERSION
           docker push 822298509516.dkr.ecr.us-east-1.amazonaws.com/blue_green_ecr/frontend:$NEW_VERSION
 
-      - name: Terminating containers locally
-        run: |
-          docker compose down -v
+      
 
