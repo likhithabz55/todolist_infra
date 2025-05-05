@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: to-do.works
+    - host: qa.to-do.works
       http:
         paths:
           - path: /users

@@ -78,13 +78,14 @@ spec:
     metadata:
       labels:
         app: frontend
+        version: "${FRONTEND_VERSION}"
     spec:
       nodeSelector:
         arch: arm64
     spec:
       containers:                     #specifies the container image the pods will run
         - name: frontend
-          image: 822298509516.dkr.ecr.us-east-1.amazonaws.com/blue_green_ecr/frontend:latest
+          image: 822298509516.dkr.ecr.us-east-1.amazonaws.com/blue_green_ecr/frontend:${FRONTEND_VERSION}
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -106,6 +107,7 @@ spec:
   type: ClusterIP
   selector:
     app: frontend
+    version: "${FRONTEND_VERSION}"
   ports:
     - protocol: TCP
       port: 80
