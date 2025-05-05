@@ -31,7 +31,7 @@ jobs:
       - name: Run integration tests on uat
         run: |
           cd k8s/uat
-          sh ./test_2.sh
+          bash ./test_2.sh
           if [ $? -ne 0 ]; then
               echo "Tests failed"
               echo "deleting deployment"
