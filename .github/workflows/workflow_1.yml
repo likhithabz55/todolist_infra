@@ -30,7 +30,8 @@ jobs:
       #Build docker image for frontend
       - name: build docker image for frontend
         run: |
-           docker buildx build --platform linux/arm64 --no-cache -t frontend -f frontend .
+           cd frontend
+           docker buildx build --platform linux/arm64 -t todolist-app/frontend . --load
       #    docker compose build -t --no-cache todolist-app/frontend
 
 
