@@ -14,10 +14,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: Checkout Infrastructure Repository
+        uses: actions/checkout@v4
+
       - name: Checkout Source Repository
         uses: actions/checkout@v4
         with:
           repository: "likhithabz55/todolist-app"
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
@@ -27,13 +32,6 @@ jobs:
         run: |
           docker build -t todolist-app/frontend:latest ./frontend     
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-            aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -90,6 +88,14 @@ jobs:
           git push origin main
         env:
           NEW_VERSION: ${{ env.NEW_VERSION }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
       #login to Amazon ECR
       - name: Login to Amazon ECR
