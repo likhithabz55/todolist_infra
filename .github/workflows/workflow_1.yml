@@ -19,11 +19,23 @@ jobs:
         with:
           repository: "likhithabz55/todolist-app"
 
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+            java-version: '21'  # or your preferred version
+            distribution: 'temurin'  # Use OpenJDK Temurin
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+            path: ~/.m2
+            key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+            restore-keys: ${{ runner.os }}-m2
+
       - name: Build maven package for frontend
         run: |
           cd user-service
-          mvn clean package
-          mvn install
+          mvn clean install -DskipTests  
           mvn package
           cd ..
 
