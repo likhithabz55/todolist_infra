@@ -1,9 +1,9 @@
 name: Blue-green deployment on prod
 on:
   workflow_run:
-    workflows: [ "Blue-green deployment on uat" ]
-    types:
-      - completed
+#    workflows: [ "Blue-green deployment on uat" ]
+#    types:
+#      - completed
   workflow_dispatch:
 
 jobs:
