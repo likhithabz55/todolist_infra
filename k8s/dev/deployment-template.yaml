@@ -3,16 +3,16 @@ kind: Deployment
 metadata:
   name: db-deployment
   labels:
-    app: postgres            #pods will be named app: user-service
+    app: db            #pods will be named app: user-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: postgres
+      app: db
   template:
     metadata:
       labels:
-        app: postgres
+        app: db 
     spec:
       containers:                     #specifies the container image the pods will run
         - name: postgres
@@ -32,24 +32,20 @@ spec:
               mountPath: /var/lib/postgresql/data
       volumes:
         - name: postgres-data
-#          persistentVolumeClaim:
-#            claimName: postgres-pvc
-
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres-service
+  name: db-service
   labels:
-    app: postgres
+    app: db
 spec:
   type: ClusterIP
   selector:
-    app: postgres # Select pods with label app=mongodb
+    app: db # Select pods with label app=mongodb
   ports:
-    - protocol: TCP
-      port: 5432 # Service Port
+    - port: 5432 # Service Port
       targetPort: 5432 # Pods Port
       
 ---
@@ -69,18 +65,14 @@ spec:
     metadata:
       labels:
         app: frontend
+        version: "${FRONTEND_VERSION}"
     spec:
       containers:                     #specifies the container image the pods will run
         - name: frontend
-          image: todolist-app/frontend
+          image: todolist-app/frontend:${FRONTEND_VERSION}
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
-          env:
-            - name: REACT_APP_USER_SERVICE_URL
-              value: http://user-service:8081
-            - name: REACT_APP_TASK_SERVICE_URL
-              value: http://taskview-service:8082
 
 ---
 
@@ -89,15 +81,14 @@ kind: Service
 metadata:
   name: frontend-service
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: frontend
+    version: "${FRONTEND_VERSION}"
   ports:
-    - protocol: TCP
-      port: 80
+    - port: 80
       targetPort: 3000
-      
-      
+         
 ---
 
 apiVersion: apps/v1
@@ -105,32 +96,30 @@ kind: Deployment
 metadata:
   name: taskview-service-deployment
   labels:
-    app: taskview-service            #pods will be named app: user-service
+    app: taskview            #pods will be named app: user-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: taskview-service
+      app: taskview
   template:
     metadata:
       labels:
-        app: taskview-service
+        app: taskview
     spec:
       containers:                     #specifies the container image the pods will run
         - name: taskview-service
-          image: todolist-app/taskview-service:latest
+          image: todolist-app/taskview-service:01
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8082
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://postgres-service:5432/todo
+              value: jdbc:postgresql://db-service:5432/todo
             - name: SPRING_DATASOURCE_USERNAME
               value: postgres
             - name: SPRING_DATASOURCE_PASSWORD
               value: postgres
-
-
 ---
 
 apiVersion: v1
@@ -140,10 +129,9 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: user-service
+    app: taskview
   ports:
-    - protocol: TCP
-      port: 80
+    - port: 80
       targetPort: 8082
 ---
 
@@ -152,26 +140,26 @@ kind: Deployment
 metadata:
   name: user-service-deployment
   labels:
-    app: user-service            #pods will be named app: user-service
+    app: user            #pods will be named app: user-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user-service
+      app: user
   template:
     metadata:
       labels:
-        app: user-service
+        app: user
     spec:
       containers:                     #specifies the container image the pods will run
         - name: user-service
-          image: todolist-app/user-service:latest
+          image: todolist-app/user-service:01
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://postgres-service:5432/todo
+              value: jdbc:postgresql://db-service:5432/todo
             - name: SPRING_DATASOURCE_USERNAME
               value: postgres
             - name: SPRING_DATASOURCE_PASSWORD
@@ -187,29 +175,9 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: user-service
+    app: user
   ports:
-    - protocol: TCP
-      port: 80
+    - port: 80
       targetPort: 8081
----
 
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: todo-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  rules:
-  - host: todo.local
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend-service
-            port:
-              number: 80
 
