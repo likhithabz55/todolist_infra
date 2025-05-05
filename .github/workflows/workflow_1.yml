@@ -40,6 +40,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+            cd frontend
             npm install
             npm install -g commitlint @commitlint/config-conventional
 
