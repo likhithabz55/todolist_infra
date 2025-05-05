@@ -23,4 +23,4 @@ jobs:
       - name: Deploy new frontend version on qa
         run: |
           cd k8s/qa
-          run deploy.sh
+          sh deploy.sh
