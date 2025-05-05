@@ -24,13 +24,14 @@ jobs:
           repository: "likhithabz55/todolist-app"
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      #- name: Set up Docker
-      #  uses: docker/setup-buildx-action@v2
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
 
       #Build docker image for frontend
       - name: build docker image for frontend
         run: |
-          docker compose build -t --no-cache todolist-app/frontend     
+           docker buildx build --platform linux/arm64 --no-cache -t frontend .
+      #    docker compose build -t --no-cache todolist-app/frontend
 
 
       - name: Set up Node.js
