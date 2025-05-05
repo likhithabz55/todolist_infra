@@ -30,7 +30,7 @@ jobs:
       #Build docker image for frontend
       - name: build docker image for frontend
         run: |
-          docker build -t todolist-app/frontend:latest ./frontend     
+          docker compose build --no-cache frontend     
 
 
       - name: Set up Node.js
