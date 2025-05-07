@@ -34,5 +34,5 @@ jobs:
             echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Output bump level
-        run:
-            echo "Version should be bumped: ${{ steps.level.outputs.level }}"
+        run: |
+            echo "Version to be bumped: ${{ steps.level.outputs.level }}"
