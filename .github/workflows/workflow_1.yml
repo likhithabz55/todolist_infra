@@ -29,10 +29,24 @@ jobs:
         id: commits
         run: |
             COMMITS=$(git log --since="${{ env.since_time }}" --pretty=format:"%s")
-            echo "commit_messages<<EOF" >> $GITHUB_OUTPUT
-            echo "$COMMITS" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
+            echo "commit_messages=$COMMITS"" >> $GITHUB_OUTPUT
+
+      - name: Determine highest level change
+        id: level
+        run: |
+          LEVEL="patch"
+          
+          # Check for BREAKING CHANGE (major bump)
+          if echo "${{ env.commit_messages }}" | grep -qi "BREAKING CHANGE"; then
+            LEVEL="major"
+          
+          elif echo "${{ env.commit_messages }}" | grep -qiE "^feat"; then
+            LEVEL="minor"
+          fi
+          
+          echo "Version bump level should be: $LEVEL"
+          echo "level=$LEVEL" >> $GITHUB_ENV  # Store version bump level in environment variable   
 
       - name: Output bump level
         run: |
-            echo "Version to be bumped: ${{ steps.level.outputs.level }}"
+            echo "Version bump level: ${{ env.level }}"
