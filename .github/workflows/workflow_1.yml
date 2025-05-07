@@ -208,6 +208,7 @@ jobs:
         if: env.skip_push == 'false'
         run: |
           SERVICES="${{steps.detect_services.outputs.services_to_bump}}"
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 822298509516.dkr.ecr.us-east-1.amazonaws.com
           for SERVICE in $SERVICES; do
             NEW_VERSION=$(jq -r --arg svc "$SERVICE" '.[$svc]' new_versions.json)
             
