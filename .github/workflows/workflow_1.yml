@@ -148,7 +148,8 @@ jobs:
         id: check_version_changes
         run: |
           NEW_VERSIONS_JSON="${{ steps.bump_versions.outputs.new_versions }}"
-          
+          echo "NEW_VERSIONS_JSON: $NEW_VERSIONS_JSON"  # Debugging the output
+
           # Check if any service has a new version
           CHANGED_SERVICES=$(echo "$NEW_VERSIONS_JSON" | jq -r 'keys | .[]')
 
