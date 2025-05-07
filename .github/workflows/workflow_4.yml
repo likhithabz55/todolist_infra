@@ -45,6 +45,7 @@ jobs:
               kubectl delete deployments --all -n prod-green
           else
               echo "All tests passed.deployment successful"
+              cd prod
               sh ./change_to_prod.sh "prod-blue" "prod-green"
           fi
           exit
