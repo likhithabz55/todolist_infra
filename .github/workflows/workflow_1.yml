@@ -203,10 +203,10 @@ jobs:
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 822298509516.dkr.ecr.us-east-1.amazonaws.com
           for SERVICE in $SERVICES; do
             echo "Building Docker image for $SERVICE"
-            cd todolist-app/$SERVICE
+            cd $SERVICE
             echo "$(pwd)"
             docker buildx build --platform linux/arm64 -t todolist-app/$SERVICE . --load
-            cd ../../..
+            cd ../../
             NEW_VERSION=$(jq -r --arg svc "$SERVICE" '.[$svc]' new_versions.json)
             
             echo "Pushing Docker image for $SERVICE"
