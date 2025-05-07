@@ -47,6 +47,40 @@ jobs:
             echo "$DECODED" >> "$GITHUB_OUTPUT"
             echo "EOF" >> "$GITHUB_OUTPUT"
 
+      - name: Get changed files in last 24h
+        id: changed
+        run: |
+            FILES=$(git log --since="${{ env.since_time }}" --name-only --pretty=format: | sort -u)
+            echo "Changed files:"
+            echo "$FILES"
+
+            echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+            echo "$FILES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT   
+
+      - name: Detect services to version bump
+        id: detect_services
+        run: |
+            FILES="${{ steps.changed.outputs.changed_files }}"
+            echo "Changed files:"
+            echo "$FILES"
+
+            SERVICES=()
+
+            if echo "$FILES" | grep -q "^frontend/"; then
+              SERVICES+=("frontend")
+            fi
+
+            if echo "$FILES" | grep -q "^user-service/"; then
+              SERVICES+=("user-service")
+            fi
+
+            if echo "$FILES" | grep -q "^taskview-service/"; then
+              SERVICES+=("taskview-service")
+            fi
+
+            echo "Changed services: ${SERVICES[@]}"
+            echo "services_to_bump=${SERVICES[*]}" >> $GITHUB_OUTPUT
 
       - name: Determine highest level change
         id: level
