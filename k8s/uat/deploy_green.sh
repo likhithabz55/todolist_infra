@@ -2,8 +2,6 @@
 
 aws eks update-kubeconfig --region us-east-1 --name eks-blue-green
 
-set -euo pipefail
-
 NAMESPACE="uat-green"
 #SUBDOMAIN="uat-green"
 
