@@ -36,6 +36,8 @@ jobs:
         id: level
         run: |
           LEVEL="patch"
+          echo "Commit messages from last 24 hours:"
+          echo "${{ steps.commits.outputs.commit_messages }}"
           
           # Check for BREAKING CHANGE (major bump)
           if echo "${{ env.commit_messages }}" | grep -qi "BREAKING CHANGE"; then
