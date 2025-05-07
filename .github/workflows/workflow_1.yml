@@ -195,24 +195,18 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
-      - name: Build docker images
-        run: |
-          SERVICES=(frontend user-service taskview-service)
-          for SERVICE in "${SERVICES[@]}"; do
-            echo "Building Docker image for $SERVICE"
-            cd todolist-app/$SERVICE
-            echo "$(pwd)"
-            docker buildx build --platform linux/arm64 -t todolist-app/$SERVICE . --load
-            cd ../..
-          done
-            
 
-      - name: Tag and push docker images
+      - name: Build and push docker images
         if: env.skip_push == 'false'
         run: |
           SERVICES="${{steps.detect_services.outputs.services_to_bump}}"
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 822298509516.dkr.ecr.us-east-1.amazonaws.com
           for SERVICE in $SERVICES; do
+            echo "Building Docker image for $SERVICE"
+            cd todolist-app/$SERVICE
+            echo "$(pwd)"
+            docker buildx build --platform linux/arm64 -t todolist-app/$SERVICE . --load
+            cd ../../..
             NEW_VERSION=$(jq -r --arg svc "$SERVICE" '.[$svc]' new_versions.json)
             
             echo "Pushing Docker image for $SERVICE"
