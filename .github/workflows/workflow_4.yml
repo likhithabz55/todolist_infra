@@ -33,7 +33,7 @@ jobs:
       - name: Deploy new green frontend version on prod
         run: |
           cd k8s/prod
-          sh deploy_green.sh    
+          bash deploy_green.sh    
 
       - name: Run integration tests on prod.if successful, switch prod to green
         run: |
