@@ -199,12 +199,13 @@ jobs:
           for SERVICE in "${SERVICES[@]}"; do
             echo "Building Docker image for $SERVICE"
             cd $SERVICE
-            docker buildx build --platform linux/arm64 -t todolist-app/$SERVICE . --load
+            echo "$(pwd)"
+            docker buildx build --platform linux/arm64 -t todolist-app/$SERVICE . --load --build-context $SERVICE
             cd ..
           done
             
 
-      - name: Build and Tag docker images
+      - name: Tag and push docker images
         if: env.skip_push == 'false'
         run: |
           SERVICES="${{steps.detect_services.outputs.services_to_bump}}"
