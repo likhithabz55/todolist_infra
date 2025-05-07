@@ -103,3 +103,42 @@ jobs:
       - name: Output bump level
         run: |
             echo "Version bump level: ${{ env.level }}"
+
+      - name: Compute bumped versions per service
+        id: bump_versions
+        run: |
+          SERVICES="$${{env.detect_services}}"
+          LEVEL="${{ env.level }}"
+
+          echo "Computing bumped versions for: $SERVICES"
+          echo "Level: $LEVEL"
+
+          NEW_VERSIONS_JSON="{"
+          FIRST=true
+
+          for SERVICE in $SERVICES; do
+            VERSION=$(jq -r --arg svc "$SERVICE" '.[$svc]' versions.json)
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+
+            case "$LEVEL" in
+              major)
+                MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+              minor)
+                MINOR=$((MINOR + 1)); PATCH=0 ;;
+              patch)
+                PATCH=$((PATCH + 1)) ;;
+            esac
+
+            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+
+            if [ "$FIRST" = true ]; then
+              NEW_VERSIONS_JSON+="\"$SERVICE\":\"$NEW_VERSION\""
+              FIRST=false
+            else
+              NEW_VERSIONS_JSON+=",\"$SERVICE\":\"$NEW_VERSION\""
+            fi
+          done
+
+          NEW_VERSIONS_JSON+="}"
+
+          echo "new_versions=$NEW_VERSIONS_JSON" >> $GITHUB_OUTPUT
