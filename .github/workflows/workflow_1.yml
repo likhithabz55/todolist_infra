@@ -149,12 +149,16 @@ jobs:
         run: |
           NEW_VERSIONS_JSON="${{ steps.bump_versions.outputs.new_versions }}"
           echo "NEW_VERSIONS_JSON: $NEW_VERSIONS_JSON"  # Debugging the output
+          
+          echo "changes_services:"
+          echo "$NEW_VERSIONS_JSON"
+          echo "without quotes"
+          echo $NEW_VERSIONS_JSON
 
           # Check if any service has a new version
           CHANGED_SERVICES=$(echo "$NEW_VERSIONS_JSON" | jq -r 'keys | .[]')
           
-          echo "changes_services:"
-          echo "$CHANGED_SERVICES"
+          
 
           if [ -z "$CHANGED_SERVICES" ]; then
             echo "No version changes detected. Skipping Docker build and push."
