@@ -156,7 +156,7 @@ jobs:
           echo $NEW_VERSIONS_JSON
 
           # Check if any service has a new version
-          CHANGED_SERVICES=$(echo "$NEW_VERSIONS_JSON" | jq -r 'keys | .[]')
+          CHANGED_SERVICES=$(echo "'$NEW_VERSIONS_JSON'" | jq -r 'keys | .[]')
           
           
 
