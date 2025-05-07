@@ -31,10 +31,21 @@ jobs:
             COMMITS=$(git log --since="${{ env.since_time }}" --pretty=format:"%s")
             ESCAPED_COMMITS=$(echo "$COMMITS" | jq -sRr @uri)
             echo "commit_messages=$ESCAPED_COMMITS" >> $GITHUB_OUTPUT
-            DECODED_COMMITS=$(echo "${{ steps.commits.outputs.commit_messages }}" | jq -sRr @uri | jq -sRr @uri)
+          
+
+      - name: Debug commit messages
+        id: debug
+        run: |
+            ENCODED="${{ steps.commits.outputs.commit_messages }}"
+        
+            # Decode using printf and sed
+            DECODED=$(printf '%b' "${ENCODED//%/\\x}")
             echo "Decoded commit messages:"
-            echo "$DECODED_COMMITS"
-            echo "decoded_commit_messages=$DECODED_COMMITS" >> $GITHUB_ENV
+            echo "$DECODED"
+        
+            echo "decoded_commit_messages<<EOF" >> "$GITHUB_OUTPUT"
+            echo "$DECODED" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
 
 
       - name: Determine highest level change
