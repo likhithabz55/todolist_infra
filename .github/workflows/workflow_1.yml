@@ -53,13 +53,13 @@ jobs:
         run: |
           LEVEL="patch"
           echo "Commit messages from last 24 hours:"
-          echo "${{ steps.decode.outputs.decoded_commit_messages }}"
+          echo "${{ steps.debug.outputs.decoded_commit_messages }}"
           
           # Check for BREAKING CHANGE (major bump)
-          if echo "${{ steps.decode.outputs.decoded_commit_messages }}" | grep -qi "BREAKING CHANGE"; then
+          if echo "${{ steps.debug.outputs.decoded_commit_messages }}" | grep -qi "BREAKING CHANGE"; then
             LEVEL="major"
           
-          elif echo "${{ steps.decode.outputs.decoded_commit_messages }}" | grep -qiE "^feat"; then
+          elif echo "${{ steps.debug.outputs.decoded_commit_messages }}" | grep -qiE "^feat"; then
             LEVEL="minor"
           fi
           
