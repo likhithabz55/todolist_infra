@@ -199,9 +199,10 @@ jobs:
           SERVICES=(frontend user-service taskview-service)
           for SERVICE in "${SERVICES[@]}"; do
             echo "Building Docker image for $SERVICE"
-            cd "${GITHUB_WORKSPACE}/todolist-app/$SERVICE"
+            cd todolist-app/$SERVICE
             echo "$(pwd)"
-            docker buildx build --platform linux/arm64 -t todolist-app/$SERVICE . --load 
+            docker buildx build --platform linux/arm64 -t todolist-app/$SERVICE . --load
+            cd ../..
           done
             
 
