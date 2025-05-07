@@ -206,7 +206,7 @@ jobs:
             cd $SERVICE
             echo "$(pwd)"
             docker buildx build --platform linux/arm64 -t todolist-app/$SERVICE . --load
-            cd ../../
+            cd ..
             NEW_VERSION=$(jq -r --arg svc "$SERVICE" '.[$svc]' new_versions.json)
             
             echo "Pushing Docker image for $SERVICE"
