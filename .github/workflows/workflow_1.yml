@@ -157,6 +157,7 @@ jobs:
 
       - name: Check for version changes
         id: check_version_changes
+        if: env.level != 'none'
         run: |
           NEW_VERSIONS_JSON="${{ env.NEW_VERSIONS_JSON }}"
           echo "NEW_VERSIONS_JSON: $NEW_VERSIONS_JSON"  # Debugging the output
