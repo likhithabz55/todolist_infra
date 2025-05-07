@@ -17,7 +17,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: "likhithabz55/todolist-app"
-          path: todolist-app
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
@@ -25,6 +24,7 @@ jobs:
         run: |
             YESTERDAY=$(date -u -d "1 hour ago" +%Y-%m-%dT%H:%M:%S)
             echo "since_time=$YESTERDAY" >> $GITHUB_ENV
+            echo "$(pwd)"
 
       - name: Get commit messages from last 24h
         id: commits
