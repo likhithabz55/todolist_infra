@@ -143,6 +143,7 @@ jobs:
 
           echo "NEW_VERSIONS_JSON=$NEW_VERSIONS_JSON" >> $GITHUB_ENV
           echo "NEW_VERSIONS_JSON: $NEW_VERSIONS_JSON"
+          echo "$NEW_VERSIONS_JSON" > new_versions.json
 
       - name: Check for version changes
         id: check_version_changes
@@ -154,9 +155,12 @@ jobs:
           echo "$NEW_VERSIONS_JSON"
           echo "without quotes"
           echo $NEW_VERSIONS_JSON
+          
+          echo "Contents of new_versions.json:"
+          cat new_versions.json
 
           # Check if any service has a new version
-          CHANGED_SERVICES=$(echo "'$NEW_VERSIONS_JSON'" | jq -r 'keys | .[]')
+          CHANGED_SERVICES=$(jq -r 'keys[]' new_versions.json)
           
           
 
