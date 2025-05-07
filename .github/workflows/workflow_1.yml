@@ -85,7 +85,7 @@ jobs:
       - name: Determine highest level change
         id: level
         run: |
-          LEVEL="patch"
+          LEVEL="none"
           echo "Commit messages from last 24 hours:"
           echo "${{ steps.debug.outputs.decoded_commit_messages }}"
           
@@ -95,6 +95,8 @@ jobs:
           
           elif echo "${{ steps.debug.outputs.decoded_commit_messages }}" | grep -qiE "^feat"; then
             LEVEL="minor"
+          elif echo "${{ steps.debug.outputs.decoded_commit_messages }}" | grep -qiE "^fix"; then
+            LEVEL="patch"
           fi
           
           echo "Version bump level should be: $LEVEL"
@@ -104,8 +106,15 @@ jobs:
         run: |
             echo "Version bump level: ${{ env.level }}"
 
+      - name: Skip if no changes to bump
+        if: env.level == 'none'
+        run: |
+            echo "No qualifying commits found. Skipping version bump."
+            echo "skip_push=true" >> $GITHUB_ENV    
+
       - name: Compute bumped versions per service
         id: bump_versions
+        if: env.level != 'none'
         run: |
           SERVICES="${{steps.detect_services.outputs.services_to_bump}}"
           LEVEL="${{ env.level }}"
@@ -169,7 +178,7 @@ jobs:
             echo "skip_build=true" >> $GITHUB_ENV
           else
             echo "Version changes detected: $CHANGED_SERVICES"
-            echo "skip_build=false" >> $GITHUB_ENV
+            echo "skip_push=false" >> $GITHUB_ENV
           fi
     
 
@@ -184,16 +193,25 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
 
+      - name: Build docker images
+        run: |
+          SERVICES=["frontend", "user-service", "taskview-service"]
+          for SERVICE in $SERVICES; do
+            echo "Building Docker image for $SERVICE"
+            cd $SERVICE
+            docker buildx build --platform linux/arm64 -t todolist-app/$SERVICE . --load
+          done
+            
+
       - name: Build and Tag docker images
-        if: env.skip_build == 'false'
+        if: env.skip_push == 'false'
         run: |
           SERVICES="${{steps.detect_services.outputs.services_to_bump}}"
           for SERVICE in $SERVICES; do
             NEW_VERSION=$(jq -r --arg svc "$SERVICE" '.[$svc]' new_versions.json)
             
-            echo "Building Docker image for $SERVICE"
+            echo "Pushing Docker image for $SERVICE"
             cd $SERVICE
-            docker buildx build --platform linux/arm64 -t todolist-app/$SERVICE . --load
             docker tag todolist-app/$SERVICE:latest 822298509516.dkr.ecr.us-east-1.amazonaws.com/blue_green_ecr/$SERVICE:$NEW_VERSION
             
             echo "Pushing $SERVICE:$NEW_VERSION to Docker registry"
