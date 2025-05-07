@@ -188,7 +188,7 @@ jobs:
         if: env.skip_build == 'false'
         run: |
           SERVICES="${{steps.detect_services.outputs.services_to_bump}}"
-          for SERVICE in "${SERVICES[@]}"; do
+          for SERVICE in $SERVICES; do
             NEW_VERSION=$(jq -r --arg svc "$SERVICE" '.[$svc]' new_versions.json)
             
             echo "Building Docker image for $SERVICE"
