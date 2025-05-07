@@ -195,11 +195,12 @@ jobs:
 
       - name: Build docker images
         run: |
-          SERVICES=["frontend", "user-service", "taskview-service"]
-          for SERVICE in $SERVICES; do
+          SERVICES=(frontend user-service taskview-service)
+          for SERVICE in "${SERVICES[@]}"; do
             echo "Building Docker image for $SERVICE"
             cd $SERVICE
             docker buildx build --platform linux/arm64 -t todolist-app/$SERVICE . --load
+            cd ..
           done
             
 
