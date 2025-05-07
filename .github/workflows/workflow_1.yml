@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: "likhithabz55/todolist-app"
+          path: todolist-app
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
@@ -198,10 +199,9 @@ jobs:
           SERVICES=(frontend user-service taskview-service)
           for SERVICE in "${SERVICES[@]}"; do
             echo "Building Docker image for $SERVICE"
-            cd $SERVICE
+            cd "${GITHUB_WORKSPACE}/todolist-app/$SERVICE"
             echo "$(pwd)"
             docker buildx build --platform linux/arm64 -t todolist-app/$SERVICE . --load 
-            cd ..
           done
             
 
