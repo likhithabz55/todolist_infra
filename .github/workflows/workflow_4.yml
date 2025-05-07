@@ -46,7 +46,7 @@ jobs:
           else
               echo "All tests passed.deployment successful"
               cd prod
-              sh ./change_to_prod.sh "prod-blue" "prod-green"
+              bash ./change_to_prod.sh "prod-blue" "prod-green"
           fi
           exit
           EOF
