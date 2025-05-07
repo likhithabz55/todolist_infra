@@ -107,7 +107,7 @@ jobs:
       - name: Compute bumped versions per service
         id: bump_versions
         run: |
-          SERVICES="$${{env.detect_services}}"
+          SERVICES="$${{steps.detect_services.outputs.services_to_bump}}"
           LEVEL="${{ env.level }}"
 
           echo "Computing bumped versions for: $SERVICES"
