@@ -144,6 +144,23 @@ jobs:
           echo "new_versions=$NEW_VERSIONS_JSON" >> $GITHUB_OUTPUT
           echo $NEW_VERSIONS_JSON
 
+      - name: Check for version changes
+        id: check_version_changes
+        run: |
+          NEW_VERSIONS_JSON="${{ steps.bump_versions.outputs.new_versions }}"
+          
+          # Check if any service has a new version
+          CHANGED_SERVICES=$(echo "$NEW_VERSIONS_JSON" | jq -r 'keys | .[]')
+
+          if [ -z "$CHANGED_SERVICES" ]; then
+            echo "No version changes detected. Skipping Docker build and push."
+            echo "skip_build=true" >> $GITHUB_ENV
+          else
+            echo "Version changes detected: $CHANGED_SERVICES"
+            echo "skip_build=false" >> $GITHUB_ENV
+          fi
+    
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -156,6 +173,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build and Tag docker images
+        if: env.skip_build == 'false'
         run: |
           SERVICES="${{steps.detect_services.outputs.services_to_bump}}"
           for SERVICE in "${SERVICES[@]}"; do
