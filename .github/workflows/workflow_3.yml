@@ -36,7 +36,7 @@ jobs:
 
       - name: Run integration tests on uat
         run: |
-          cd k8s/uat
+          cd k8s
           bash ./test_2.sh
           if [ $? -ne 0 ]; then
               echo "Tests failed"
