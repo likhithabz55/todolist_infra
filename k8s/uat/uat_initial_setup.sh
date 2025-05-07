@@ -1,1 +1,0 @@
-sh deploy_blue.sh "uat-blue" "1.0.1"

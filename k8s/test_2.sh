@@ -8,7 +8,19 @@ set -x
 for ((i=1; i<=20; i++)); do
   ADD_USER_RESPONSE=$(curl -v -s -X POST -H "Content-Type: application/json" -d "$USER_DATA" http://uat-green.to-do.works/users/signup)
   if [ $? -eq 0 ]; then
-    echo "Request successful"
+    echo "Signup successful"
+    break
+  fi
+  echo "Retrying in ..5. Attempt $i"
+  sleep 5
+done
+set +x
+
+set -x
+for ((i=1; i<=20; i++)); do
+  ADD_USER_RESPONSE=$(curl -v -s -X POST -H "Content-Type: application/json" -d '{"username": "testuser", "password": "1234"}' http://uat-green.to-do.works/users/login)
+  if [ $? -eq 0 ]; then
+    echo "login successful"
     break
   fi
   echo "Retrying in ..5. Attempt $i"

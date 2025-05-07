@@ -104,8 +104,8 @@ resource "aws_eks_node_group" "my_arm64_node_group" {
   node_role_arn   = "arn:aws:iam::822298509516:role/LabRole"
   subnet_ids = module.vpc.private_subnets
   scaling_config {
-    desired_size = 2
-    max_size     = 2
+    desired_size = 4
+    max_size     = 4
     min_size     = 2
   }
   disk_size = 20

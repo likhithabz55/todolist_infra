@@ -1,12 +1,12 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: proxy-${NAMESPACE}-ingress
+  name: proxy-${SUBDOMAIN}-ingress
 
 spec:
   ingressClassName: nginx
   rules:
-    - host: ${NAMESPACE}.to-do.works
+    - host: ${SUBDOMAIN}.to-do.works
       http:
         paths:
           - path: /users
@@ -27,6 +27,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: frontend-service
+                name: frontend-${VERSION_COLOUR}-service
                 port:
                   number: 80

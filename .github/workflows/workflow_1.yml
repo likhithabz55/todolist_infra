@@ -1,13 +1,9 @@
-# This is a basic workflow to help you get started with Actions
-name: New deployment
-on:
-  push:
-    paths:
-      - 'frontend/**'
-    branches:
-      - 'main'
-  workflow_dispatch:
+name: Nightly Build
 
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -22,79 +18,21 @@ jobs:
         with:
           repository: "likhithabz55/todolist-app"
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
-
-      #Build docker image for frontend
-      - name: build docker image for frontend
+      - name: Set date range
         run: |
-           cd frontend
-           docker buildx build --platform linux/arm64 -t todolist-app/frontend . --load
-      #    docker compose build -t --no-cache todolist-app/frontend
+            YESTERDAY=$(date -u -d "24 hours ago" +%Y-%m-%dT%H:%M:%S)
+            echo "since_time=$YESTERDAY" >> $GITHUB_ENV
 
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-            node-version: '18'
-
-      - name: Install dependencies
+      - name: Get commit messages from last 24h
+        id: commits
         run: |
-            cd frontend
-            npm install
-            npm install -g commitlint @commitlint/config-conventional
+            COMMITS=$(git log --since="${{ env.since_time }}" --pretty=format:"%s")
+            echo "commit_messages<<EOF" >> $GITHUB_OUTPUT
+            echo "$COMMITS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Get last commit message
-        id: last_commit
-        run: |
-            COMMIT_MSG=$(git log -1 --pretty=%B)
-            echo "COMMIT_MSG=$COMMIT_MSG" >> $GITHUB_ENV
-
-      - name: Checkout Infrastructure Repository
-        uses: actions/checkout@v4
-
-      - name: Read current version from version.txt
-        id: read_version
-        run: |
-          CURRENT_VERSION=$(awk '/^frontend/ { print $2 }' version.txt)
-          echo "Current version: $CURRENT_VERSION"
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
-
-          COMMIT_MSG="${{ env.COMMIT_MSG }}"
-          echo "Commit message: $COMMIT_MSG"
-
-          if [[ "$COMMIT_MSG" == feat:* ]]; then
-              ((MINOR+=1))
-              PATCH=0
-          elif [[ "$COMMIT_MSG" == fix:* ]]; then
-              ((PATCH+=1))
-          elif echo "$COMMIT_MSG" | grep -q "BREAKING CHANGE"; then
-              ((MAJOR+=1))
-              MINOR=0
-              PATCH=0
-          fi
-
-          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV  
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-
-      #login to Amazon ECR
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Tag and Push Docker images with timestamp
-        run: |
-          docker tag todolist-app/frontend:latest 822298509516.dkr.ecr.us-east-1.amazonaws.com/blue_green_ecr/frontend:$NEW_VERSION
-          docker push 822298509516.dkr.ecr.us-east-1.amazonaws.com/blue_green_ecr/frontend:$NEW_VERSION
-
-      
-
+      - name: Output bump level
+        run:
+            echo "Version should be bumped: ${{ steps.level.outputs.level }}"

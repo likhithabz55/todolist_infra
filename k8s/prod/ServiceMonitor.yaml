@@ -1,0 +1,57 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: user-service-monitor
+  labels:
+    release: kube-prometheus  # make sure this matches the release name of your Prometheus
+spec:
+  selector:
+    matchLabels:
+      app: "user-service"  # This will match the 'app' label for all microservices you want to monitor
+  namespaceSelector:
+     matchNames:
+       - prod         # This will select services from all namespaces
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: taskview-service-monitor
+  labels:
+    release: prometheus  # make sure this matches the release name of your Prometheus
+spec:
+  selector:
+    matchLabels:
+      app: "taskview-service"  # This will match the 'app' label for all microservices you want to monitor
+  namespaceSelector:
+     matchNames:
+        - prod  # This will select services from all namespaces
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s
+
+---
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: frontend-monitor
+  labels:
+    release: kube-prometheus  # make sure this matches the release name of your Prometheus
+spec:
+  selector:
+    matchLabels:
+      app: "frontend"  # This will match the 'app' label for all microservices you want to monitor
+  namespaceSelector:
+     matchNames:
+        - prod  # This will select services from all namespaces
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s
