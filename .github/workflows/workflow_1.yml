@@ -142,7 +142,7 @@ jobs:
           NEW_VERSIONS_JSON+="}"
 
           echo "new_versions=$NEW_VERSIONS_JSON" >> $GITHUB_OUTPUT
-          echo $NEW_VERSIONS_JSON
+          echo "NEW_VERSIONS_JSON: $NEW_VERSIONS_JSON"
 
       - name: Check for version changes
         id: check_version_changes
