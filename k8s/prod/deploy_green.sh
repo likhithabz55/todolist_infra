@@ -2,17 +2,17 @@
 
 aws eks update-kubeconfig --region us-east-1 --name eks-blue-green
 
-set -euo pipefail
+#set -euo pipefail
 
 # Validate input
-if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <namespace> <subdomain>"
-  echo "Example: $0 prod prod-green"
-  exit 1
-fi
+#if [ "$#" -ne 2 ]; then
+#  echo "Usage: $0 <namespace> <subdomain>"
+#  echo "Example: $0 prod prod-green"
+#  exit 1
+#fi
 
-NAMESPACE="$1"
-SUBDOMAIN="$2"
+NAMESPACE="prod"
+SUBDOMAIN="prod-green"
 
 
 ###EXTRACT LATEST TAG

@@ -24,11 +24,11 @@ jobs:
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
 
-      - name: cleanup
-        run: |
-          aws eks update-kubeconfig --region us-east-1 --name eks-blue-green
-          kubectl delete deployments --all -n uat-green
-          kubectl delete services --all -n uat-green        
+#      - name: cleanup
+#        run: |
+#          aws eks update-kubeconfig --region us-east-1 --name eks-blue-green
+#          kubectl delete deployments --all -n uat-green
+#          kubectl delete services --all -n uat-green
 
       - name: Deploy new green frontend version on prod
         run: |
@@ -37,7 +37,7 @@ jobs:
 
       - name: Run integration tests on prod.if successful, switch prod to green
         run: |
-          cd k8s/prod
+          cd k8s
           bash ./test_2.sh
           if [ $? -ne 0 ]; then
               echo "Tests failed"
