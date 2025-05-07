@@ -9,6 +9,7 @@ NAMESPACE="qa"
 
 
 ###EXTRACT LATEST TAG
+ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 822298509516.dkr.ecr.us-east-1.amazonaws.com
 
 REPO_NAME_1="blue_green_ecr/frontend"
 REPO_NAME_2="blue_green_ecr/user_service"

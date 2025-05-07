@@ -1,7 +1,7 @@
 name: Build green version on qa
 on:
   workflow_run:
-    workflows: [ "New deployment" ]
+    workflows: [ "Nightly Build" ]
     types:
       - completed
   workflow_dispatch:
@@ -22,6 +22,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+
+      - name: fetch and check if images are latest
+        run: |
+          sh k8s/fetch_latest_images.sh
 
       - name: Deploy new frontend version on qa
         run: |
