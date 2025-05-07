@@ -29,7 +29,7 @@ jobs:
         id: commits
         run: |
             COMMITS=$(git log --since="${{ env.since_time }}" --pretty=format:"%s")
-            echo "commit_messages=$COMMITS"" >> $GITHUB_OUTPUT
+            echo "commit_messages=$COMMITS" >> $GITHUB_OUTPUT
 
       - name: Determine highest level change
         id: level
