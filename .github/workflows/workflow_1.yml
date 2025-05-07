@@ -142,3 +142,4 @@ jobs:
           NEW_VERSIONS_JSON+="}"
 
           echo "new_versions=$NEW_VERSIONS_JSON" >> $GITHUB_OUTPUT
+          echo $NEW_VERSIONS_JSON
