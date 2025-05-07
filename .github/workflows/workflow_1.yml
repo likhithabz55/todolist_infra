@@ -152,6 +152,9 @@ jobs:
 
           # Check if any service has a new version
           CHANGED_SERVICES=$(echo "$NEW_VERSIONS_JSON" | jq -r 'keys | .[]')
+          
+          echo "changes_services:"
+          echo "$CHANGED_SERVICES"
 
           if [ -z "$CHANGED_SERVICES" ]; then
             echo "No version changes detected. Skipping Docker build and push."
